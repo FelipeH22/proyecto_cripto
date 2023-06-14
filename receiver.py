@@ -1,3 +1,4 @@
+from ftplib import FTP
 import PyPDF2 as pdf
 import fpdf
 import elgamal
@@ -48,3 +49,17 @@ class Receiver:
         new_pdf.output("decrypted.pdf")
 
     def generate_keys(self): return elgamal.generate_key()
+
+    def download_file_ftp(self, hostname, username, password, remote_file_path, filename):
+        try:
+            ftp = FTP(hostname)
+            ftp.login(username, password)
+            remote_directory = remote_file_path.rsplit('/', 1)[0]
+            ftp.cwd(remote_directory)
+            with open(filename, 'wb') as file:
+                ftp.retrbinary('RETR ' + filename, file.write)
+            ftp.quit()
+            print("File downloaded successfully!")
+        except Exception as e:
+            print("An error occurred:", str(e))
+

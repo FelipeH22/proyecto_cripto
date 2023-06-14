@@ -1,17 +1,18 @@
+from ftplib import FTP
 import PyPDF2 as pdf
 import fpdf
 import elgamal
 
 
 class Sender:
-    def __init__(self,public_key):
+    def __init__(self, public_key):
         """
         Initializes a new Sender instance.
 
         Args:
             public_key (tuple(int)): The public key sent by the receiver. It consists of a tuple of integers.
         """
-        self.public_key=public_key
+        self.public_key = public_key
 
     def read_pdf(self, filename):
         """
@@ -37,7 +38,7 @@ class Sender:
         Returns:
             Text encrypted
         """
-        return elgamal.encrypt(text,self.public_key)
+        return elgamal.encrypt(text, self.public_key)
 
     def export_encrypted_file(self, ciphertext, **kwargs):
         """
@@ -57,8 +58,10 @@ class Sender:
             Exception: If an error occurs.
         """
         try:
-            if "filename" in kwargs: filename=kwargs.get("filename")
-            else: filename="output.pdf"
+            if "filename" in kwargs:
+                filename = kwargs.get("filename")
+            else:
+                filename = "output.pdf"
             new_pdf = fpdf.FPDF(format="letter")
             new_pdf.add_page()
             if "white_text" in kwargs and kwargs.get("white_text"):
@@ -73,7 +76,30 @@ class Sender:
                     generated = pdf.PdfReader(file)
                     for page_num in range(len(generated.pages)):
                         writer.add_page(generated.pages[page_num])
-                writer.encrypt(str(public_key))
+                writer.encrypt(str(self.public_key))
                 with open(filename, 'wb') as output_file:
                     writer.write(output_file)
-        except: print("Something went wrong. Check parameters and processed text")
+        except:
+            print("Something went wrong. Check parameters and processed text")
+
+    def send_file(self, hostname, username, password, filename, remote_directory):
+        try:
+            ftp = FTP(hostname)
+            ftp.login(username, password)
+            ftp.cwd(remote_directory)
+            with open(filename, 'rb') as file:
+                ftp.storbinary('STOR ' + filename, file)
+            ftp.quit()
+            print("File uploaded successfully!")
+        except Exception as e:
+            print("An error occurred:", str(e))
+
+
+    """# Example usage
+    hostname = 'ftp.example.com'
+    username = 'your_username'
+    password = 'your_password'
+    file_path = 'path_to_local_file/file.txt'
+    remote_directory = '/path/to/remote/directory'
+
+    upload_file_ftp(hostname, username, password, file_path, remote_directory)"""
