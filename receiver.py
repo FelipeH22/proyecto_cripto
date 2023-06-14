@@ -1,8 +1,10 @@
+import ast
 from ftplib import FTP
+
 import PyPDF2 as pdf
 import fpdf
+
 import elgamal
-import ast
 
 
 class Receiver:
@@ -21,11 +23,12 @@ class Receiver:
             ValueError: If generation is false and public_key and private_key are not provided.
         """
         if "generation" in kwargs and kwargs.get("generation"):
-            self.public_key,self.private_key=self.generate_keys()
+            self.public_key, self.private_key = self.generate_keys()
         elif "public_key" in kwargs and "private_key" in kwargs:
-            self.public_key=kwargs.get("public_key")
-            self.private_key=kwargs.get("private_key")
-        else: raise ValueError("Since generation flag is false, public_key and private_key are mandatory parameters")
+            self.public_key = kwargs.get("public_key")
+            self.private_key = kwargs.get("private_key")
+        else:
+            raise ValueError("Since generation flag is false, public_key and private_key are mandatory parameters")
 
     def decrypt_file(self, filename):
         """
@@ -34,13 +37,15 @@ class Receiver:
         Args:
             filename (str): The name of the pdf file to decrypt. Include the extension ("filename.pdf")
         """
+
         def read_pdf(filename):
             text = str()
             reader = pdf.PdfReader(filename)
             for x in reader.pages:
                 text += x.extract_text()
             return text
-        plaintext=elgamal.decrypt(ast.literal_eval(read_pdf(filename)),self.public_key,self.private_key)
+
+        plaintext = elgamal.decrypt(ast.literal_eval(read_pdf(filename)), self.public_key, self.private_key)
         new_pdf = fpdf.FPDF()
         new_pdf.add_font('Arial', '', 'c:/windows/fonts/arial.ttf', uni=True)
         new_pdf.add_page()
@@ -48,7 +53,8 @@ class Receiver:
         new_pdf.multi_cell(200, 10, str(plaintext))
         new_pdf.output("decrypted.pdf")
 
-    def generate_keys(self): return elgamal.generate_key()
+    def generate_keys(self):
+        return elgamal.generate_key()
 
     def download_file_ftp(self, hostname, username, password, remote_file_path, filename):
         try:
@@ -62,4 +68,3 @@ class Receiver:
             print("File downloaded successfully!")
         except Exception as e:
             print("An error occurred:", str(e))
-

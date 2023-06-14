@@ -1,6 +1,8 @@
 from ftplib import FTP
+
 import PyPDF2 as pdf
 import fpdf
+
 import elgamal
 
 
@@ -93,13 +95,3 @@ class Sender:
             print("File uploaded successfully!")
         except Exception as e:
             print("An error occurred:", str(e))
-
-
-    """# Example usage
-    hostname = 'ftp.example.com'
-    username = 'your_username'
-    password = 'your_password'
-    file_path = 'path_to_local_file/file.txt'
-    remote_directory = '/path/to/remote/directory'
-
-    upload_file_ftp(hostname, username, password, file_path, remote_directory)"""
