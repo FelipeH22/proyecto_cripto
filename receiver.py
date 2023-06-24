@@ -37,7 +37,7 @@ class Receiver:
         Args:
             filename (str): The name of the pdf file to decrypt. Include the extension ("filename.pdf")
         """
-
+        print("decrypt", filename)
         def read_pdf(filename):
             text = str()
             reader = pdf.PdfReader(filename)
@@ -52,16 +52,15 @@ class Receiver:
         new_pdf.set_font("Arial", size=9)
         new_pdf.multi_cell(200, 10, str(plaintext))
         new_pdf.output("decrypted.pdf")
+        print("Encriptado satisfactoriamente")
 
     def generate_keys(self):
         return elgamal.generate_key()
 
     def download_file_ftp(self, hostname, username, password, remote_file_path, filename):
         try:
-            ftp = FTP(hostname)
-            ftp.login(username, password)
-            remote_directory = remote_file_path.rsplit('/', 1)[0]
-            ftp.cwd(remote_directory)
+            ftp = FTP(hostname, username, password)
+            ftp.cwd(remote_file_path)
             with open(filename, 'wb') as file:
                 ftp.retrbinary('RETR ' + filename, file.write)
             ftp.quit()
